@@ -1,5 +1,8 @@
 package com.sierrajackson.wordlebackend.service;
 
+import com.sierrajackson.wordlebackend.dto.GuessDto;
+import com.sierrajackson.wordlebackend.dto.GuessResponseDto;
+import com.sierrajackson.wordlebackend.enums.LetterStatus;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -28,6 +31,33 @@ public class GuessService {
 
     public String getDailyWord() {
         return answers.getFirst();
+    }
+
+    public GuessResponseDto guess(GuessDto guessDto) {
+        if (!validateWord(guessDto.word())) {
+            return new GuessResponseDto(false, null);
+        }
+
+        String guessedWord = guessDto.word().toLowerCase();
+        String dailyWord = getDailyWord();
+        LetterStatus[] statuses = new LetterStatus[5];
+
+        for (int i = 0; i < statuses.length; i++) {
+            if (guessedWord.charAt(i) == dailyWord.charAt(i)) {
+                statuses[i] = LetterStatus.CORRECT;
+            } else if (dailyWord.contains(String.valueOf(guessedWord.charAt(i)))) {
+                statuses[i] = LetterStatus.IN_WORD;
+            } else {
+                statuses[i] = LetterStatus.INCORRECT;
+            }
+        }
+
+        return new GuessResponseDto(true, statuses);
+    }
+
+    private boolean validateWord(String word) {
+        String lowercaseWord = word.toLowerCase();
+        return answers.contains(lowercaseWord) || guesses.contains(lowercaseWord);
     }
 
 }

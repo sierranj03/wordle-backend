@@ -1,7 +1,12 @@
 package com.sierrajackson.wordlebackend.controller;
 
+import com.sierrajackson.wordlebackend.dto.GuessDto;
+import com.sierrajackson.wordlebackend.dto.GuessResponseDto;
 import com.sierrajackson.wordlebackend.service.GuessService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,6 +23,11 @@ public class GuessController {
     @GetMapping
     public String getDailyWord() {
         return guessService.getDailyWord();
+    }
+
+    @PostMapping
+    public ResponseEntity<GuessResponseDto> guess(@RequestBody GuessDto guessDto) {
+        return ResponseEntity.ok(guessService.guess(guessDto));
     }
 
 }
