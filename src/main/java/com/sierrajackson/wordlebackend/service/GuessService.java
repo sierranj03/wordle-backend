@@ -10,10 +10,15 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Service
 public class GuessService {
+
+    private final ZoneId TIMEZONE = ZoneId.of("America/New_York");
 
     @Value("classpath:answers.txt")
     private Resource answersFile;
@@ -27,10 +32,6 @@ public class GuessService {
     public void init() throws IOException {
         answers = Files.readAllLines(answersFile.getFilePath());
         guesses = Files.readAllLines(guessesFile.getFilePath());
-    }
-
-    public String getDailyWord() {
-        return answers.getFirst();
     }
 
     public GuessResponseDto guess(GuessDto guessDto) {
@@ -58,6 +59,12 @@ public class GuessService {
     private boolean validateWord(String word) {
         String lowercaseWord = word.toLowerCase();
         return answers.contains(lowercaseWord) || guesses.contains(lowercaseWord);
+    }
+
+    private String getDailyWord() {
+        ZonedDateTime today = LocalDate.now(TIMEZONE).atStartOfDay(TIMEZONE);
+        int index = Math.floorMod(today.hashCode(), answers.size());
+        return answers.get(index);
     }
 
 }
